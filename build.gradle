@@ -1,9 +1,19 @@
 buildscript {
+
+    repositories{
+        google()
+    }
+
     dependencies {
 
         classpath 'com.android.tools.build:gradle:7.1.2'
         // Add the AppGallery Connect plugin configuration. You are advised to use the latest plugin version.
         classpath 'com.huawei.agconnect:agcp:1.6.0.300'
+
+        def nav_version = "2.5.3"
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
+
+
 
     }
 }
