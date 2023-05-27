@@ -1,9 +1,8 @@
-package com.example.huaweimapkitapp
+package com.example.huaweimapkitapp.view
 
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.AdapterView
@@ -15,11 +14,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
+import com.example.huaweimapkitapp.R
 import com.example.huaweimapkitapp.databinding.FragmentSearchBinding
 import com.google.android.material.snackbar.Snackbar
 import com.huawei.hmf.tasks.OnFailureListener
 import com.huawei.hmf.tasks.OnSuccessListener
-import com.huawei.hmf.tasks.Task
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.location.*
 import com.huawei.hms.support.account.AccountAuthManager
@@ -31,10 +31,10 @@ import com.huawei.hms.support.account.service.AccountAuthService
 class SearchFragment : Fragment() {
 
     private lateinit var binding : FragmentSearchBinding
-    private lateinit var countryCode : String
-    var latitude : Double? = null
-    var longitude : Double? = null
-    private var distance : Int? = null
+    var countryCode : String?=null
+    var latitude : Double? = 0.0
+    var longitude : Double? = 0.0
+    var distance : Int? = null
     val requestMultiplePermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ){
@@ -48,11 +48,10 @@ class SearchFragment : Fragment() {
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        requireActivity().setTitle("Search Charging Stations")
         requestLocationPermission()
         registerLauncher()
         settingsClient = LocationServices.getSettingsClient(requireActivity())
@@ -77,14 +76,12 @@ class SearchFragment : Fragment() {
         takeUserInfo()
 
         //spinner
-        val countryCodeList = listOf<String>("TR","US")
+        val countryCodeList = listOf<String>("","TR","US")
         val spinnerAdapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_item,countryCodeList)
         binding.spinner.adapter = spinnerAdapter
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 countryCode = p0?.getItemAtPosition(p2) as String
-                //Toast.makeText(context,selectedItem,Toast.LENGTH_SHORT).show()
-
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -132,18 +129,30 @@ class SearchFragment : Fragment() {
         //search button
         binding.searchBtn.setOnClickListener {
 
-            navigateToMapFragment()
 
+
+            val bundle = Bundle()
+            bundle.putDouble("latiutde",latitude!!.toDouble())
+            bundle.putDouble("longitude",longitude!!.toDouble())
+            if(distance!=null){
+                bundle.putInt("distance",distance!!.toInt())
+
+            }
+            bundle.putString("countrycode",countryCode.toString())
+
+            findNavController().navigate(R.id.action_searchFragment_to_mapFragment,bundle)
+
+            // navigateToMapFragment()
         }
 
     }
 
     private fun clearLocation(){
-        longitude = null
-        latitude = null
+        longitude = 0.0
+        latitude = 0.0
 
-        binding.latTv.text =longitude
-        binding.longTv.text = latitude
+        binding.latTv.text =longitude.toString()
+        binding.longTv.text = latitude.toString()
     }
 
 

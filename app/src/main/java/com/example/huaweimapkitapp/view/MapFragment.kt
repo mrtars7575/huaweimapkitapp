@@ -1,4 +1,4 @@
-package com.example.huaweimapkitapp
+package com.example.huaweimapkitapp.view
 
 import android.content.ContentValues
 import android.os.Bundle
@@ -7,10 +7,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import com.example.huaweimapkitapp.ChargeModel
+import com.example.huaweimapkitapp.Connection
 import com.example.huaweimapkitapp.databinding.FragmentMapBinding
+import com.example.huaweimapkitapp.service.ChargeAPI
 import com.huawei.hms.maps.*
 import com.huawei.hms.maps.model.*
 import retrofit2.Call
@@ -25,21 +26,30 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
     private lateinit var binding : FragmentMapBinding
 
     private lateinit var huaweiMap: HuaweiMap
-    private lateinit var marker: Marker
-    private lateinit var markerList: ArrayList<Marker>
     private lateinit var cameraUpdate: CameraUpdate
     private lateinit var cameraPosition: CameraPosition
     private lateinit var mapView : MapView
+    private var call:Call<List<ChargeModel>> ?=null
 
+    var latitude : Double? = null
+    var longitude : Double? = null
+    var distance : Int? = null
+    var countrycode : String = ""
 
     //retrofit
     private val BASE_URL = "https://api.openchargemap.io/v3/";
-    private var chargeModels : ArrayList<ChargeModel> ?=  null
+    private var chargeModels : ArrayList<ChargeModel> ?= null
+    private var connectionsList : ArrayList<Connection>?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requireActivity().setTitle("Charging Stations")
+        takeSearchInfo()
+
         MapsInitializer.setApiKey("DAEDADBfDgUVHydgn/rZGmpU7Sw4nGraSNn1rA4rfcYD59JG1XxAztkZCvdV4AnplUsEKyu8UslA9+MYc6zxQAl9t29QSYs97hfhgQ==")
         MapsInitializer.initialize(context)
+
+        loadData()
 
     }
 
@@ -48,7 +58,7 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMapBinding.inflate(inflater,container,false)
-        loadData()
+
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -69,6 +79,16 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
         mapView.getMapAsync(this)
 
     }
+    private fun takeSearchInfo(){
+        val bundle = arguments
+        if(bundle!=null){
+            latitude = bundle.getDouble("latitude")
+            longitude = bundle.getDouble("longitude")
+            distance = bundle.getInt("distance")
+            countrycode = bundle.getString("countrycode").toString()
+
+        }
+    }
     //retrofit function
      private fun loadData(){
          val retrofit = Retrofit.Builder()
@@ -78,25 +98,53 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
 
          val service: ChargeAPI = retrofit.create(ChargeAPI::class.java)
          val call = service.getData(longitude = 28.9252 , latitude = 41.0247 , distance = 50 , countryCode = "TR", key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        /*
+        if(countrycode!=null && countrycode!=""
+            && latitude!=null && latitude!=0.0
+            && longitude!=null && longitude!=0.0){
+            call = service.getData(longitude = longitude , latitude = latitude , distance= 50,countryCode = countrycode, key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }else if(countrycode!=null && !countrycode.equals("")
+            && latitude==null || latitude==0.0
+            && longitude==null || longitude==0.0){
+            call = service.getDataToCountrCode( distance= 50,countryCode = countrycode, key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }else if(countrycode==null || countrycode.equals("")
+            && latitude!=null && latitude!=0.0
+            && longitude!=null && longitude!=0.0){
+            call = service.getDataToLocationInfo(longitude = longitude , latitude = latitude , distance= 50,key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }else{
+             call = service.getDataToCountrCode(countryCode = "GB" , distance = 50 , key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+          val call = service.getDataToLocationInfo( longitude =42.99417724917402, 24.64951210451297,distance = 50 , key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }*/
+       /*
+        if((longitude==null || longitude == 0.0 ) && (latitude==null || latitude != 0.0) && (countrycode!=null && !countrycode.equals(""))){
+            call = service.getDataToCountrCode(countryCode = countrycode , distance = 50 , key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }else if((longitude!=null && longitude != 0.0 ) && (latitude!=null && latitude != 0.0) && (countrycode==null || countrycode.equals(""))){
+            call = service.getDataToLocationInfo(longitude = longitude , latitude = latitude , distance= 50,key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }else if((longitude!=null && longitude != 0.0 ) && (latitude!=null && latitude != 0.0) && (countrycode!=null && countrycode.equals(""))){
+            call = service.getData(longitude = longitude , latitude = latitude , distance = 50 , countryCode = countrycode, key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        }else{
+            call = service.getData(longitude = 28.9252 , latitude = 41.0247 , distance = 50 , countryCode = "TR", key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+        } */
 
-         call.enqueue(object : Callback<List<ChargeModel>> {
-             override fun onResponse(
-                 call: Call<List<ChargeModel>>,
-                 response: Response<List<ChargeModel>>
-             ) {
-                 if (response.isSuccessful) {
-                     response.body()?.let {
-                         chargeModels = ArrayList(it)
-                         Log.e(ContentValues.TAG, "on response raw: ${response.raw()}")
-                     }
-                 }
-             }
 
-             override fun onFailure(call: Call<List<ChargeModel>>, t: Throwable) {
-                 // Handle the network failure
-                 Log.e(ContentValues.TAG, "onFailure: ${t.message}")
-             }
-         })
+        call.enqueue(object : Callback<List<ChargeModel>> {
+            override fun onResponse(
+                call: Call<List<ChargeModel>>,
+                response: Response<List<ChargeModel>>
+            ) {
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        chargeModels = ArrayList(it)
+                        Log.e(ContentValues.TAG, "on response raw: ${response.raw()}")
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<List<ChargeModel>>, t: Throwable) {
+                // Handle the network failure
+                Log.e(ContentValues.TAG, "onFailure: ${t.message}")
+            }
+        })
      }
 
     companion object {
@@ -170,13 +218,13 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
                     && chargeModel!!.addressInfo!!.latitude == selectedMarkerLatitude
                     && chargeModel!!.addressInfo!!.longitude == selectedMarkerLongitude
                 ) {
+                    connectionsList = chargeModel.connections as ArrayList<Connection>?
+
                     val action = MapFragmentDirections.actionMapFragmentToDetailFragment(chargeModel)
                     findNavController().navigate(action)
                  }
 
             }
-
-
 
         }
 

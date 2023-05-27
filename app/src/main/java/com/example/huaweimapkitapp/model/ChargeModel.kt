@@ -10,7 +10,9 @@ data class ChargeModel (
     @SerializedName("AddressInfo")
     val addressInfo: AddressInfo?,
     @SerializedName("OperatorInfo")
-    val operatorInfo: OperatorInfo?
+    val operatorInfo: OperatorInfo?,
+    @SerializedName("Connections")
+    val connections: List<Connection>?,
     ) : Serializable
 
 data class AddressInfo (
@@ -27,11 +29,11 @@ data class AddressInfo (
     @SerializedName("Postcode")
     val postcode: String?,
     @SerializedName("Country")
-    val country: Country?,
+    val country: Country,
     @SerializedName("Latitude")
-    val latitude: Double?,
+    val latitude: Double,
     @SerializedName("Longitude")
-    val longitude: Double?
+    val longitude: Double
     ) : Serializable
 
 data class OperatorInfo(
@@ -39,7 +41,33 @@ data class OperatorInfo(
     val webSiteURL : String?
     ) : Serializable
 
+data class Connection(
+    @SerializedName("ConnectionType")
+    val connectionType: ConnectionType,
+    val powerKW: Double?,
+    val quantity: Int?,
+    val amps: Int?,
+    val voltage: Int?,
+    val currentTypeName: String?,
+    val level: Int?,
+    val levelName: String?,
+    val isFastChargeCapable: Boolean?,
+    val maxSocketPower: Int?,
+    val comments: String?,
 
+):Serializable
+
+data class ConnectionType(
+    @SerializedName("Id")
+    val id: Int,
+    @SerializedName("Title")
+    val title: String,
+    @SerializedName("FormalName")
+    val formalName: String?,
+    @SerializedName("IsDiscontinued")
+    val isDiscontinued: Boolean?,
+    // Diğer özellikler
+):Serializable
 
 data class Country(
     @SerializedName("Title")
