@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.huaweimapkitapp.ChargeModel
 import com.example.huaweimapkitapp.Connection
@@ -29,7 +30,7 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
     private lateinit var cameraUpdate: CameraUpdate
     private lateinit var cameraPosition: CameraPosition
     private lateinit var mapView : MapView
-    private var call:Call<List<ChargeModel>> ?=null
+    // private var call:Call<List<ChargeModel>> ?=null
 
     var latitude : Double? = null
     var longitude : Double? = null
@@ -97,34 +98,24 @@ class MapFragment : Fragment() , OnMapReadyCallback  {
              .build()
 
          val service: ChargeAPI = retrofit.create(ChargeAPI::class.java)
-         val call = service.getData(longitude = 28.9252 , latitude = 41.0247 , distance = 50 , countryCode = "TR", key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        /*
-        if(countrycode!=null && countrycode!=""
-            && latitude!=null && latitude!=0.0
-            && longitude!=null && longitude!=0.0){
-            call = service.getData(longitude = longitude , latitude = latitude , distance= 50,countryCode = countrycode, key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }else if(countrycode!=null && !countrycode.equals("")
-            && latitude==null || latitude==0.0
-            && longitude==null || longitude==0.0){
-            call = service.getDataToCountrCode( distance= 50,countryCode = countrycode, key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }else if(countrycode==null || countrycode.equals("")
-            && latitude!=null && latitude!=0.0
-            && longitude!=null && longitude!=0.0){
-            call = service.getDataToLocationInfo(longitude = longitude , latitude = latitude , distance= 50,key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }else{
-             call = service.getDataToCountrCode(countryCode = "GB" , distance = 50 , key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-          val call = service.getDataToLocationInfo( longitude =42.99417724917402, 24.64951210451297,distance = 50 , key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }*/
-       /*
-        if((longitude==null || longitude == 0.0 ) && (latitude==null || latitude != 0.0) && (countrycode!=null && !countrycode.equals(""))){
-            call = service.getDataToCountrCode(countryCode = countrycode , distance = 50 , key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }else if((longitude!=null && longitude != 0.0 ) && (latitude!=null && latitude != 0.0) && (countrycode==null || countrycode.equals(""))){
-            call = service.getDataToLocationInfo(longitude = longitude , latitude = latitude , distance= 50,key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }else if((longitude!=null && longitude != 0.0 ) && (latitude!=null && latitude != 0.0) && (countrycode!=null && countrycode.equals(""))){
-            call = service.getData(longitude = longitude , latitude = latitude , distance = 50 , countryCode = countrycode, key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        }else{
-            call = service.getData(longitude = 28.9252 , latitude = 41.0247 , distance = 50 , countryCode = "TR", key= "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
-        } */
+
+        val call :Call<List<ChargeModel>> = when {
+            latitude !=null && latitude != 0.0 && longitude != null && longitude != 0.0 -> {
+                if(countrycode!=null && countrycode!=""){
+                    service.getData(latitude = latitude, longitude = longitude, distance = distance!!, countryCode = countrycode, key = "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2", )
+                }else{
+                    service.getDataToCountrCode(distance = distance!!, countryCode = countrycode, key = "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+                }
+            }
+            countrycode != null && countrycode!="" -> {
+                service.getDataToCountrCode(countryCode = countrycode, distance = distance!!,key = "f9eca3e4-ebd1-4fd8-ad45-7713db5b0bd2" )
+            }
+            else -> {
+                Toast.makeText(requireContext(), "Invalid input", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+        }
 
 
         call.enqueue(object : Callback<List<ChargeModel>> {

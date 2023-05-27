@@ -140,7 +140,13 @@ class SearchFragment : Fragment() {
             }
             bundle.putString("countrycode",countryCode.toString())
 
-            findNavController().navigate(R.id.action_searchFragment_to_mapFragment,bundle)
+            if(countryCode==null&&countryCode==""&&longitude==0.0&&longitude==null&&latitude==0.0&&latitude==null){
+                Toast.makeText(requireContext(),"Must select countrycode or location",Toast.LENGTH_SHORT).show()
+            }else{
+                findNavController().navigate(R.id.action_searchFragment_to_mapFragment,bundle)
+            }
+
+
 
             // navigateToMapFragment()
         }
