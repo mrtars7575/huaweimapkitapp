@@ -1,4 +1,4 @@
-# Projenin Özeti
+# Huawei Project
 Bu proje, Android projelerinde ve Restful API hizmetlerinde Huawei servislerinin nasıl kullanılacağını göstermek amacıyla oluşturulmuştur. Projede, kullanıcı kimlik doğrulaması için Authentication Service, kişiselleştirilmiş harita gösterimi için Map Kit ve konum almak için Location Kit gibi Huawei servisleri kullanılmaktadır.
 
 ## Projeyi nasıl çalıştıracağız?
