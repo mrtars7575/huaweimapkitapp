@@ -16,3 +16,8 @@ HMS Core entegre işlemini gerçekleştirdikten sonra [Open Charge Map](https://
  
 # SSS
 - Eğer ki locatiion kit ile kullanıcı konumu alırken 10803 Permission_Denied hatası alırsanız uygulama için Konumu her zaman "Allow All time" olarak ayarlamanız önerilir. Bu, uygulamanız arka planda konum isteklerini başlattığında doğru verilerin sürekli olarak döndürülebilmesini sağlayabilir.Ancak "Allow All Time" için AndroidManifest.xml dosyasında ACCESS_BACKGROUND_LOCATION iznini bildirin.Android 11 (API düzeyi: 30) veya sonraki sürümlerde, yukarıdaki üç izni aynı anda alınmamaktadır. ACCESS_BACKGROUND_LOCATION izni için yalnızca ACCESS_COARSE_LOCATION ve ACCESS_FINE_LOCATION izinleri verildikten sonra başvurabilirsiniz.
+
+# Video
+- [1](https://drive.google.com/file/d/1yPWhRTSelh77b4KAbl4wKHuFAJ3uXnQc/view?usp=sharing)
+- [2](https://drive.google.com/file/d/1ulBDyS1M3Qcf2E39R8fjVHS7PQmGNkXa/view?usp=share_link)
+
